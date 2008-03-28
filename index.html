@@ -1,25 +1,53 @@
 <html>
 	<head>
-		<title>aurbuild - Official Page</title>
+		<title>aurbuild</title>
 		<style type="text/css">
 			body {
-				width: 780px;
+				width: 700px;
+				padding: 30px;
+				background-color: #fff;
+				font-family: monospace;
+				font-size: 12px;
 			}
+
+			a, a:link {
+				text-decoration: underline;
+				color: #00e;
+				font-weight: 600;
+			}
+
+			a:visited {
+				color: #005;
+				text-decoration: none;
+			}
+
+			a:hover { color: #005;}
+
 			code.codebox {
-				border: solid 1px red;
+				border: solid 3px #f66;
 				padding: 10px;
 				display: block;
+				background-color: #ffc;
+			}
+
+			hr {
+				color: #000;
+				border: solid 1px #000;
 			}
 		</style>
 	</head>
 	<body>
-		<h1>aurbuild - Official Page</h1>
+		<h1>aurbuild</h1>
 
-		<p>aurbuild is a tool that makes it easier to build and install
-		packages from the Arch Linux User-Community repository.</p>
+		<ul>
+			<li>A tool to build and install packages from the
+			<a href="http://www.archlinux.org">Arch Linux</a>
+		       	User-Community Repository.</li>
 
-		<p>aurbuild is also very useful for building official packages
-		via ABS.</p>
+			<li>Helpful for building official packages via ABS.</li>
+
+			<li>Released under the GNU GPL version 2</li>
+		</ul>
 
 		<p>Please contribute to this project! Patches are always
 		welcome.</p>
@@ -45,26 +73,28 @@
 		
 		<br />Please vote for aurbuild on the AUR Page.
 
-		<br />
+		<hr />
 		<h2>Bugs and Support</h2>
 		<p>If you have a bug report or need help with aurbuild please
 		use these channels.</p>
 
-		<p><b>Email Me</b>
-		<br />Loui Chang &lt;louipc (dot) ist (at) gmail (dot) com&gt;
+		<p><b>email</b>
+		<br /><b>Maintainer</b> -
+	       	Loui Chang &lt;louipc (dot) ist (at) gmail (dot) com&gt;
 		</p>
 
 		<p><b>IRC @ Freenode</b>
 		<br />/join #aurbuild
 		</p>
 
+		<hr />
 		<h2>Installing aurbuild</h2>
-		<p>
 		
 		<code class="codebox">
 			pacman -U http://download.berlios.de/aurbuild/aurbuild-1.8.3-1-any.pkg.tar.gz
 		</code>
-			</p>
+
+		<br />
 		<p>You can also sync aurbuild directly from pacman.
 		<br />Just add these lines to your pacman.conf:
 		</p>
@@ -74,6 +104,7 @@
 			<br />Server = http://download.berlios.de/aurbuild
 		</code>
 
+		<hr />
 		<h2>History</h2>
 		<p>aurbuild was first conceived as a fourty four line python
 		script written in 2005 by Dusty Phillips which appeared in
