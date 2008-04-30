@@ -119,7 +119,11 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 	<h2>sudo and aurbuild</h2>
 
 	<p>
-	aurbuild should be run as root or with root permissions.
+	aurbuild should be run as root or with root permissions. Root
+	permissions are used by aurbuild to become an unprivileged user
+	specifically meant for running builds. This method is actually safer
+	than running the scripts as your regular user because it keeps all that
+	user-owned data safe from potential damage.
 	<br />sudo makes it convenient to run aurbuild without becoming root,
 	but you have to pass the editor variable to the subshell.
 	</p>
