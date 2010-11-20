@@ -18,11 +18,11 @@
 #   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-import cookielib
+import http.cookiejar
 import os
-import urllib2
-import urllib
-import httplib
+import urllib.request, urllib.error, urllib.parse
+import urllib.request, urllib.parse, urllib.error
+import http.client
 
 class LoginError(Exception):
 	# base exception
@@ -46,7 +46,7 @@ class TargetError(LoginError):
 
 class aurlogin:
 	def __init__(self):
-		self.cookie_jar = cookielib.LWPCookieJar()
+		self.cookie_jar = http.cookiejar.LWPCookieJar()
 		self.aursite	= 'http://aur.archlinux.org/'
 		self.headers    = {'User-agent':
 			'Mozilla/4.0 (compatible; aurbuild/' + VERSION +')',
@@ -62,11 +62,11 @@ class aurlogin:
 		if not os.path.isdir(cookie_dir):
 			try:
 				os.makedirs(cookie_dir)
-			except Exception, e:
-				raise CookieError, 'could not create cookie directory `'+cookie_dir+'\'. '+str(e)
+			except Exception as e:
+				raise CookieError('could not create cookie directory `'+cookie_dir+'\'. '+str(e))
 
-		req = urllib2.Request(self.aursite, None, self.headers)
-		handle = urllib2.urlopen(req)
+		req = urllib.request.Request(self.aursite, None, self.headers)
+		handle = urllib.request.urlopen(req)
 		# save the cookie
 		self.cookie_jar.save(cookiefile)
 
@@ -74,8 +74,8 @@ class aurlogin:
 		""" logout of the main site """
 
 		try:
-			req = urllib2.Request(self.logout_url, None, self.headers)
-			handle = urllib2.urlopen(req)
+			req = urllib.request.Request(self.logout_url, None, self.headers)
+			handle = urllib.request.urlopen(req)
 		except:
 			# fuck it
 			pass
@@ -84,10 +84,10 @@ class aurlogin:
 		""" login to the main site """
 
 		login_url = self.aursite
-		login_params = urllib.urlencode(
+		login_params = urllib.parse.urlencode(
 			{'user': username, 'pass': password})
 
-		conn = httplib.HTTPConnection(aur_domain)
+		conn = http.client.HTTPConnection(aur_domain)
 		conn.request("POST", "", login_params, self.headers)
 		response = conn.getresponse()
 
@@ -100,12 +100,12 @@ class aurlogin:
 
 		# build an opener for the cookie
 		self.cookie_jar.load(cookiefile)
-		self.opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.cookie_jar))
-		urllib2.install_opener(self.opener)
+		self.opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(self.cookie_jar))
+		urllib.request.install_opener(self.opener)
 
 		# login request
-		req = urllib2.Request(login_url, None, self.headers)
-		handle = urllib2.urlopen(req)
+		req = urllib.request.Request(login_url, None, self.headers)
+		handle = urllib.request.urlopen(req)
 
 		# checked that we are logged in
 		logged_in = 0
@@ -114,7 +114,7 @@ class aurlogin:
 				logged_in = 1
 				break
 		if not logged_in:
-			raise AuthenticationError, 'invalid username or password'
+			raise AuthenticationError('invalid username or password')
 
 	def vote(self, username, password, cookiefile, pkgname):
 		""" vote for pkgname and return 2 if already voted """
@@ -125,8 +125,8 @@ class aurlogin:
 		self.login(username, password, cookiefile)
 
 		# query for pkgname
-		req = urllib2.Request(search_url, None, self.headers)
-		handle = urllib2.urlopen(req)
+		req = urllib.request.Request(search_url, None, self.headers)
+		handle = urllib.request.urlopen(req)
 		lines = handle.readlines()
 		valid_pkg = 0
 		for line in lines:
@@ -141,8 +141,8 @@ class aurlogin:
 				if not 'Yes' in voted:
 					# haven't voted yet, do it
 					vote_url = self.aursite+'packages.php?IDs['+id+']&do_Vote'
-					req = urllib2.Request(vote_url, None, self.headers)
-					handle = urllib2.urlopen(req)
+					req = urllib.request.Request(vote_url, None, self.headers)
+					handle = urllib.request.urlopen(req)
 
 					# confirm
 					confirmed = 0
@@ -153,7 +153,7 @@ class aurlogin:
 							break
 					if not confirmed:
 						self.logout()
-						raise ActionError, 'action confirmation indicates failure'
+						raise ActionError('action confirmation indicates failure')
 				else:
 					# return 2 because the action has already been performed
 					self.logout()
@@ -162,7 +162,7 @@ class aurlogin:
 				return
 		if not valid_pkg:
 			self.logout()
-			raise TargetError, '`'+pkgname+'\' not found on host'
+			raise TargetError('`'+pkgname+'\' not found on host')
 
 
 	def unvote(self, username, password, cookiefile, pkgname):
@@ -174,8 +174,8 @@ class aurlogin:
 		self.login(username, password, cookiefile)
 
 		# query for pkgname
-		req = urllib2.Request(search_url, None, self.headers)
-		handle = urllib2.urlopen(req)
+		req = urllib.request.Request(search_url, None, self.headers)
+		handle = urllib.request.urlopen(req)
 		lines = handle.readlines()
 		valid_pkg = 0
 		for line in lines:
@@ -190,8 +190,8 @@ class aurlogin:
 				if 'Yes' in voted:
 					# have voted, unvote
 					voted_url = self.aursite+'packages.php?IDs['+id+']&do_UnVote'
-					req = urllib2.Request(voted_url, None, self.headers)
-					handle = urllib2.urlopen(req)
+					req = urllib.request.Request(voted_url, None, self.headers)
+					handle = urllib.request.urlopen(req)
 
 					# confirm
 					confirmed = 0
@@ -202,7 +202,7 @@ class aurlogin:
 							break
 					if not confirmed:
 						self.logout()
-						raise ActionError, 'action confirmation indicates failure'
+						raise ActionError('action confirmation indicates failure')
 				else:
 					# return 2 because the action has already been performed
 					self.logout()
@@ -211,5 +211,5 @@ class aurlogin:
 				return
 		if not valid_pkg:
 			self.logout()
-			raise TargetError, '`'+pkgname+'\' not found on host'
+			raise TargetError('`'+pkgname+'\' not found on host')
 

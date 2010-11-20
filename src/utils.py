@@ -111,7 +111,7 @@ def echo_bash_vars(path, value):
 	p = Popen(['/bin/bash', '-c', 'source %s; echo %s' % (path, value)],
 			stdout=PIPE, stderr=PIPE)
 	out = p.stdout.read()
-	out = out.strip()
+	out = out.strip().decode()
 
 	if array:
 		out = out.split(' ')
@@ -120,7 +120,7 @@ def echo_bash_vars(path, value):
 	err = p.stderr.read()
 	p.stderr.close()
 
-	if err != '':
+	if err != b'':
 		raise Exception('%s error:\n\t%s' % (path, err))
 
 	return out
@@ -208,7 +208,7 @@ def prepare_build_user():
 		return builduser_uid, builduser_gid
 	except:
 		# setup an account
-		print 'creating designated build user... ',
+		print('creating designated build user... ', end=' ')
 		code = Popen(['useradd',
 			'-s', '/bin/false',
 			'-d', '/var/tmp/aurbuild',
@@ -219,16 +219,16 @@ def prepare_build_user():
 				'build user. '
 				'Reports exit status %s' % str(code))
 		else:
-			print 'done.'
+			print('done.')
 
 		# lock password
-		print 'locking password... ',
+		print('locking password... ', end=' ')
 		code = Popen(['passwd', '-l', '-q', 'aurbuild']).wait()
 		if code != 0:
 			raise Exception('Error: could not lock password. '
 				'Reports exit status of %s' % str(code))
 		else:
-			print 'done.'
+			print('done.')
 
 		# prepare_work_dirs() will handle the proper build directories
 
@@ -266,7 +266,7 @@ def search(args, verbose, site):
 	packages = aaurparse.aursearch(args, site)
 
 	if packages == None:
-		print >>sys.stderr.write(args + ': search results empty')
+		print('%s: search results empty' % args, file=sys.stderr)
 		sys.exit(1)
 	else:
 		view_list = []

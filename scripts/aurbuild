@@ -26,7 +26,7 @@ import signal
 import sys
 import tarfile
 import time
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 from shutil import rmtree, copytree, copy
 from subprocess import Popen
@@ -134,42 +134,42 @@ def handler(signo, frame):
 		sys.exit(143)
 
 def usage(name):
-	print 'Usage: %s [options] [package] <package>' % name
-	print ''
-	print 'Options:'
-	print '  -b, --builddeps       Build and install missing ' \
-					'dependencies from ABS'
-	print '  -s, --syncdeps        Install missing dependencies with pacman'
-	print ''
-	print '  -c  --clean           Clean the build directory'
-	print '  -e, --save            Save build files in %s' % save_dir
-	print '  -f, --official        Build official packages found in %s' % ABS_ROOT
-	print '  -h, --help            Show this help message and exit'
-	print '  -l, --local           Use build files found in %s' % save_dir
-	print '  --auto                Bypass menu and build ' \
-					'automatically (DANGEROUS)'
-	print '  -m, --rm-make-deps    Remove uneeded make dependencies'
-	print '  -n, --noconfirm       Bypass any confirmation messages ' \
-					'by answering yes'
-	print '  --nopager             Do not pipe output to less'
-	print '  -o "OPTS", --builder-opts="OPTS"'
-	print '                        Pass OPTS to makepkg during build'
-	print '  -u, --upgrade         Upgrade all packages installed ' \
-					'from unsupported AUR'
-	print '  -v, --version         Display version and exit'
-	print '  -x, --noinstall       Do not install package after building'
-	print '  -S, --search          Search AUR for single [keyword]'
-	print '  --verbose             Verbose search output'
-#	print '  -V, --vote            Vote for a package'
-#	print '  -U, --unvote          Unvote for a package'
+	print('Usage: %s [options] [package] <package>' % name)
+	print('')
+	print('Options:')
+	print('  -b, --builddeps       Build and install missing ' \
+					'dependencies from ABS')
+	print('  -s, --syncdeps        Install missing dependencies with pacman')
+	print('')
+	print('  -c  --clean           Clean the build directory')
+	print('  -e, --save            Save build files in %s' % save_dir)
+	print('  -f, --official        Build official packages found in %s' % ABS_ROOT)
+	print('  -h, --help            Show this help message and exit')
+	print('  -l, --local           Use build files found in %s' % save_dir)
+	print('  --auto                Bypass menu and build ' \
+					'automatically (DANGEROUS)')
+	print('  -m, --rm-make-deps    Remove uneeded make dependencies')
+	print('  -n, --noconfirm       Bypass any confirmation messages ' \
+					'by answering yes')
+	print('  --nopager             Do not pipe output to less')
+	print('  -o "OPTS", --builder-opts="OPTS"')
+	print('                        Pass OPTS to makepkg during build')
+	print('  -u, --upgrade         Upgrade all packages installed ' \
+					'from unsupported AUR')
+	print('  -v, --version         Display version and exit')
+	print('  -x, --noinstall       Do not install package after building')
+	print('  -S, --search          Search AUR for single [keyword]')
+	print('  --verbose             Verbose search output')
+#	print('  -V, --vote            Vote for a package')
+#	print('  -U, --unvote          Unvote for a package')
 
 # examine makepkg.conf and set more globals
 if os.access(makepkg_config, os.F_OK|os.R_OK):
 	try:
 		BUILDENV = autils.echo_bash_vars(makepkg_config,
 			'${BUILDENV[@]}')
-	except Exception, e:
-		print >>sys.stderr.write(str(e))
+	except Exception as e:
+		print(str(e), file=sys.stderr)
 		sys.exit(1)
 
 	valid_buildenv = []
@@ -191,8 +191,7 @@ if os.access(makepkg_config, os.F_OK|os.R_OK):
 	CARCH = out[2]
 	del(out)
 else:
-	print >>sys.stderr.write('Error: %s is missing'
-		'or read permissions are denied.' % makepkg_config)
+	print('Error: %s is missing or read permissions are denied.' % makepkg_config, file=sys.stderr)
 	sys.exit(1)
 
 signal.signal(signal.SIGINT, handler)
@@ -205,9 +204,9 @@ try:
 		'save', 'local', 'official', 'auto', 'auto-build', 'upgrade',
 		'noconfirm', 'noinstall', 'nopager', 'rm-make-deps', 'clean',
 		'search', 'url='])
-except getopt.GetoptError, e:
+except getopt.GetoptError as e:
 	usage(PROGRAM_NAME)
-	print 'Error: ' + str(e)
+	print('Error: ' + str(e))
 	sys.exit(1)
 
 for opt, optarg in opts:
@@ -236,11 +235,11 @@ for opt, optarg in opts:
 #	if opt in ['-U', '--unvote']: UNVOTE = 1
 
 def version():
-	print '%s v%s' % (PROGRAM_NAME, PROGRAM_VERSION)
-	print 'Copyright (C) 2005-2010 %s' % AUTHORS
-	print ''
-	print 'This program may be freely redistributed under'
-	print 'the terms of the GNU General Public License version 2'
+	print('%s v%s' % (PROGRAM_NAME, PROGRAM_VERSION))
+	print('Copyright (C) 2005-2010 %s' % AUTHORS)
+	print('')
+	print('This program may be freely redistributed under')
+	print('the terms of the GNU General Public License version 2')
 
 # Check for problems with options, arguments and other input.
 def verify_inputs():
@@ -252,27 +251,27 @@ def verify_inputs():
 
 	# Must have an arg unless --upgrade or --clean are specified.
 	if (len(args) == 0) and (not UPGRADE and not CLEAN):
-		print PROGRAM_NAME + ': no target specified'
+		print(PROGRAM_NAME + ': no target specified')
 		return 1
 
 	# --builddeps and --syncdeps can't be used together
 	if BUILDDEPS and SYNCDEPS:
-		print PROGRAM_NAME + ': -b, --builddeps and ' \
-			'-s, --syncdeps cannot be used together'
+		print(PROGRAM_NAME + ': -b, --builddeps and ' \
+			'-s, --syncdeps cannot be used together')
 		return 1
 
 	# --local, --official, --auto-build, and --upgrade must be used
 	# with a dependency install method.
 	if LOCAL or OFFICIAL or AUTO_BUILD or UPGRADE:
 		if not BUILDDEPS and not SYNCDEPS:
-			print PROGRAM_NAME + ': this switch requires either ' \
-				'-b, --builddeps or -s, --syncdeps'
+			print(PROGRAM_NAME + ': this switch requires either ' \
+				'-b, --builddeps or -s, --syncdeps')
 			return 1
 
 	# --vote and --unvote can't be used together.
 	if VOTE and UNVOTE:
-		print PROGRAM_NAME + ': -V, --vote and ' \
-			'-U, --unvote cannot be used together'
+		print(PROGRAM_NAME + ': -V, --vote and ' \
+			'-U, --unvote cannot be used together')
 		return 1
 
 def color(text, color_alias):
@@ -294,19 +293,19 @@ def prepare_work_dirs():
 		# aurbuild_home should be aurbuild:aurbuild with 0775
 		if not os.path.isdir(aurbuild_home):
 			os.mkdir(aurbuild_home)
-			os.chmod(aurbuild_home, 0775)
+			os.chmod(aurbuild_home, 0o775)
 			os.chown(aurbuild_home, builduser_uid, builduser_uid)
 
 		# build_dir should be the same as aurbuild_home
 		if not os.path.isdir(build_dir):
 			os.mkdir(build_dir)
-			os.chmod(build_dir, 0775)
+			os.chmod(build_dir, 0o775)
 			os.chown(build_dir, builduser_uid, builduser_uid)
 
 		# pkg_build_dir should be created by the builduser
 		autils.user_makedirs(pkg_build_dir, builduser_uid, builduser_uid)
-	except Exception, e:
-		print >>sys.stderr.write('\ncould not prepare for build: %s\n' % str(e))
+	except Exception as e:
+		print('\ncould not prepare for build: %s\n' % str(e), file=sys.stderr)
 		sys.exit(1)
 
 
@@ -314,20 +313,20 @@ def get_tarball(pkg):
 
 	try:
 		tarball_url = aaurparse.pkg_tarball_url(pkg, aursite)
-	except Exception, e:
+	except Exception as e:
 		raise Exception('Unable to parse tarball info. If '
 			'you see this message rarely, it is\n'
 			'possible user comments have skewed the parsing '
 			'results on the web page.\n')
 
 	if not tarball_url:
-		print >>sys.stderr.write('%s: not found at %s' % (pkg, aursite))
+		print('%s: not found at %s' % (pkg, aursite), file=sys.stderr)
 		return
 
 	try:
-		tar = urllib.urlretrieve(tarball_url)[0]
+		tar = urllib.request.urlretrieve(tarball_url)[0]
 		return tar
-	except IOError, e:
+	except IOError as e:
 		raise Exception('Could not retrieve needed data from:'
 			'\n\t%s\n%s' % (aursite, str(e)))
 
@@ -345,16 +344,16 @@ def extract(file):
 	try:
 		if os.path.isdir(extract_dir): rmtree(extract_dir)
 		os.mkdir(extract_dir)
-		os.chmod(extract_dir, 0775)
+		os.chmod(extract_dir, 0o775)
 		os.chown(extract_dir, builduser_uid, builduser_gid)
-	except Exception, e:
+	except Exception as e:
 		raise Exception('could not create temporary extraction point: %s' % str(e))
 
 	try:
 		tar_f = tarfile.open(file, 'r:*')
 		for member in tar_f.getmembers():
 			tar_f.extract(member, extract_dir)
-	except tarfile.TarError, e:
+	except tarfile.TarError as e:
 		if os.path.exists(file): os.remove(file)
 		raise Exception('Could not extract tarfile: %s\n' % str(e))
 
@@ -363,7 +362,7 @@ def extract(file):
 	for j in os.listdir(extract_dir):
 		jf = os.path.join(extract_dir, j)
 		if os.path.isdir(jf):
-			os.chmod(jf, 0755)
+			os.chmod(jf, 0o755)
 
 	# AUR gives us fucked tarballs with nobody:nobody ownership.
 	# This will fix it.
@@ -400,11 +399,11 @@ def filter_deps(pkg, fd_ct, type):
 
 		# See if it's a group name
 		if GROUPCHECK:
-			print "Checking for group: ",
+			print("Checking for group: ", end=' ')
 			group_pkgs = apacman.db_tools().get_group(pkg)
 
 		if group_pkgs == []:
-			print color('missing ' + type, 'red')
+			print(color('missing ' + type, 'red'))
 			pkg = apacman.db_tools().strip_ver_cmps(pkg)[0]
 
 			if BUILDDEPS:
@@ -450,18 +449,18 @@ def filter_deps(pkg, fd_ct, type):
 								filter_deps(dep_can, fd_ct, type='[D]')
 				if not found:
 					# Look in AUR for dependency.
-					print '\tNot found in database.'
+					print('\tNot found in database.')
 					return filtered
 
 			# there must be no remaining deps of deps, add to list
 			if not pkg in filtered: filtered.append(pkg)
 		else:
-			print color('group', 'cyan')
+			print(color('group', 'cyan'))
 			fd_ct += 4
 			for group_pkg in group_pkgs:
 				filter_deps(group_pkg, fd_ct, type='[D]')
 	elif code == 0:
-		print color('ok ' + type, 'green')
+		print(color('ok ' + type, 'green'))
 
 	elif code != 127 and code != 0:
 		raise Exception('aurbuild: fatal error while testing dependencies.\n')
@@ -498,8 +497,8 @@ def get_pkgpath():
 		out = autils.echo_bash_vars(os.path.join(cwd, 'PKGBUILD'),
 			'${pkgname}%${pkgver}%${pkgrel}')
 
-	except Exception, e:
-		print >>sys.stderr.write('PKGBUILD syntax error: '+ str(e))
+	except Exception as e:
+		print('PKGBUILD syntax error: '+ str(e), file=sys.stderr)
 		sys.exit(1)
 
 	arch = autils.echo_bash_vars(os.path.join(cwd,'PKGBUILD'), "${arch}")
@@ -518,11 +517,12 @@ def get_pkgpath():
 	if pkgfile:
 		return pkgfile[0]
 	else:
-		print >>sys.stderr.write('Error: could not find the built '
-				'package in %s' % pkgpath)
-		print >>sys.stderr.write('In some cases this might mean the '
+		print('Error: could not find the built '
+			'package in %s' % pkgpath, file=sys.stderr)
+		print('In some cases this might mean the '
 			'PKGDEST location does not have write and execute '
-			'permissions\nfor the aurbuild user or group.')
+			'permissions\nfor the aurbuild user or group.',
+			file=sys.stderr)
 		sys.exit(1)
 
 
@@ -532,8 +532,8 @@ def makepkgf(dep):
 
 	try:
 		raw_sources = autils.echo_bash_vars(os.path.join(cwd, 'PKGBUILD'), '${source[@]}')
-	except Exception, e:
-		print >>sys.stderr.write(str(e))
+	except Exception as e:
+		print(str(e), file=sys.stderr)
 		sys.exit(1)
 
 	app = build_app
@@ -550,11 +550,11 @@ def makepkgf(dep):
 	# src_to_pm_cache(raw_sources)
 
 	if code > 0:
-		print >>sys.stderr.write('aurbuild: could not build %s '
-			'with %s.' % (dep, app))
-		print 'Build directory retained at %s' % pkg_build_dir
-		print 'You can visit the directory, fix the ' \
-		'problem, and run %s.' % app
+		print('aurbuild: could not build %s '
+			'with %s.' % (dep, app), file=sys.stderr)
+		print('Build directory retained at %s' % pkg_build_dir)
+		print('You can visit the directory, fix the ' \
+		'problem, and run %s.' % app)
 		sys.exit(3)
 
 	return get_pkgpath()
@@ -567,12 +567,12 @@ def install(pkgpath, asdeps=False):
 	"""
 
 	if os.path.isfile(pacman_db_lock):
-		print 'Pacman is detected running.'
-		print 'Once pacman exits, you may press enter to install'
-		print 'Control + C to cancel.'
-		raw_input()
+		print('Pacman is detected running.')
+		print('Once pacman exits, you may press enter to install')
+		print('Control + C to cancel.')
+		input()
 
-	print msg('Installing package...')
+	print(msg('Installing package...'))
 
 	if not asdeps:
 		code = Popen(['pacman', '-U', pkgpath]).wait()
@@ -616,7 +616,7 @@ def menu(dir_list, package):
 	if not editor:
 		try:
 			get_editor()
-		except Exception, e:
+		except Exception as e:
 			messages += str(e) + "\n"
 
 	editor_cmd = editor
@@ -652,15 +652,15 @@ def menu(dir_list, package):
 	while not getout:
 		default_choice = 'b'
 		code = Popen('clear').wait()
-		print color(messages, 'red')
-		print title(package, 'white')
-		print '\n' + spaces + seperator
+		print(color(messages, 'red'))
+		print(title(package, 'white'))
+		print('\n' + spaces + seperator)
 
 		i = 0
 		while i < file_num:
-			print '%s  %s) View/Edit %s' % (spaces, str(i + 1), files[i])
+			print('%s  %s) View/Edit %s' % (spaces, str(i + 1), files[i]))
 			i = i + 1
-		print spaces + seperator
+		print(spaces + seperator)
 
 		menu_op = "Build with %s" % build_app
 
@@ -668,20 +668,20 @@ def menu(dir_list, package):
 			menu_op += " and install with %s" % install_app
 
 		# Build (and install) with makepkg (and pacman)
-		print spaces + color('*', 'blue') + ' b)  %s.'% menu_op
+		print(spaces + color('*', 'blue') + ' b)  %s.'% menu_op)
 		default_choice = 'b'
 
-		print spaces + '  s)  Save build files and build.'
-		print spaces + '  n)  Next package. Skip this package.'
-		print spaces + '  q)  Quit without building.'
-		print spaces + seperator
+		print(spaces + '  s)  Save build files and build.')
+		print(spaces + '  n)  Next package. Skip this package.')
+		print(spaces + '  q)  Quit without building.')
+		print(spaces + seperator)
 
 		warnings = autils.scan_pkgbuild('PKGBUILD')
 		for warn in warnings:
-			print spaces + color(warn, 'red')
+			print(spaces + color(warn, 'red'))
 
 		display_choice = default_choice.upper()
-		choice = raw_input('\n%sEnter a selection: [%s] ' % (spaces, display_choice))
+		choice = input('\n%sEnter a selection: [%s] ' % (spaces, display_choice))
 
 		if choice == '':
 			return default_choice
@@ -696,26 +696,26 @@ def menu(dir_list, package):
 				code = Popen(editor_cmd).wait()
 				editor_cmd.remove(files[int(choice)-1])
 		else:
-			print '\n%s%s: Invalid entry.' % (spaces, choice)
-			print spaces + 'Press enter to choose again.'
-			raw_input(spaces)
+			print('\n%s%s: Invalid entry.' % (spaces, choice))
+			print(spaces + 'Press enter to choose again.')
+			input(spaces)
 
 def init():
 	# check that we have everything we need
 	prog_list = ['makepkg', 'pacman', 'fakeroot']
 	for prog in prog_list:
 		if not autils.appcheck(prog):
-			print >>sys.stderr.write('%s program not found in $PATH.' % prog)
+			print('%s program not found in $PATH.' % prog, file=sys.stderr)
 			sys.exit(1)
 	# must be root
 	if uid != 0:
-		print >>sys.stderr.write('requires root access.')
+		print('requires root access.', file=sys.stderr)
 		sys.exit(1)
 
 	# ensure we have fakeroot enabled
 	if USE_FAKEROOT != 'y':
-		print "error: fakeroot is disabled in /etc/makepkg.conf\n" \
-			"Refusing to proceed."
+		print("error: fakeroot is disabled in /etc/makepkg.conf\n" \
+			"Refusing to proceed.")
 		sys.exit(1)
 
 	# set up build user
@@ -728,39 +728,39 @@ def savefiles(pkg, old_dir):
 
 	failed = 0
 	def abort_msg(msg):
-		print >>sys.stderr.write('Error saving %s to %s: %s' %
-			(pkg, save_dir, msg))
-		print >>sys.stderr.write('Aborting save...')
+		print('Error saving %s to %s: %s' %
+			(pkg, save_dir, msg), file=sys.stderr)
+		print('Aborting save...', file=sys.stderr)
 
 	savecan = os.path.join(save_dir, pkg)
 
 	if not os.path.isdir(save_dir):
 		try:
 			os.makedirs(save_dir)
-			os.chmod(save_dir, 0775)
+			os.chmod(save_dir, 0o775)
 			os.chown(save_dir, builduser_uid, builduser_uid)
-		except OSError, e:
+		except OSError as e:
 			abort_msg(str(e))
 			failed = 1
 
 	if os.path.isdir(savecan) and not failed:
 		if not NOCONFIRM:
-			choice = raw_input(savecan + ': directory exists. Overwrite? [Y/n]  ').lower()
+			choice = input(savecan + ': directory exists. Overwrite? [Y/n]  ').lower()
 
 		if NOCONFIRM or choice == 'y' or choice == 'yes' or choice == '':
 			try:
 				rmtree(savecan)
 				autils.user_copytree(old_dir, savecan, builduser_uid, builduser_gid)
-			except OSError, e:
+			except OSError as e:
 				abort_msg(str(e))
 				failed = 1
 	elif not os.path.isdir(savecan) and not failed:
 		try:
 			autils.user_copytree(old_dir, savecan, builduser_uid, builduser_gid)
-		except OSError, e:
+		except OSError as e:
 			abort_msg(str(e))
 
-	print 'Saved %s to %s' % (pkg, save_dir)
+	print('Saved %s to %s' % (pkg, save_dir))
 
 def get_editor():
 	global editor
@@ -770,8 +770,8 @@ def get_editor():
 
 	# Prompt for editor.
 	if not editor:
-		print '$EDITOR not set.'
-		editor = raw_input('Please specify an editor command: ')
+		print('$EDITOR not set.')
+		editor = input('Please specify an editor command: ')
 
 	# Get editor with separated args.
 	editor = editor.split(' ')
@@ -810,7 +810,7 @@ def main():
 			rmtree(build_dir)
 		except:
 			retcode = 1
-			print "Nothing to clean"
+			print("Nothing to clean")
 
 		if len(pkgs) == 0:
 			return retcode
@@ -820,7 +820,7 @@ def main():
 
 		if not PAGER or not autils.appcheck(PAGER):
 			for line in output:
-				print line,
+				print(line, end=' ')
 		else:
 			pipe = os.popen(PAGER, 'w')
 			try:
@@ -856,8 +856,8 @@ def main():
 		if not (LOCAL or OFFICIAL) or UPGRADE:
 			try:
 				aurpkg = aaurparse.pkg_info(pkg, aursite)
-			except Exception, e:
-				print >>sys.stderr.write(str(e))
+			except Exception as e:
+				print(str(e), file=sys.stderr)
 				upgrade_ct += 1
 				continue
 
@@ -871,10 +871,10 @@ def main():
 			result = avercmp.vercmp().vercmp(aurpkgver, installed[upgrade_ct])
 
 			if result == 1:
-				print '\tTarget: %s-%s' % (package, aurpkgver)
+				print('\tTarget: %s-%s' % (package, aurpkgver))
 				if not NOCONFIRM:
-					choice = raw_input('\tProceed with upgrade?  [Y/n] ').lower()
-					print ''
+					choice = input('\tProceed with upgrade?  [Y/n] ').lower()
+					print('')
 					if choice != 'y' and choice != 'yes' and choice != '':
 						cleanup()
 						upgrade_ct += 1
@@ -883,13 +883,13 @@ def main():
 				status = ' up to date'
 				argline = '%s %s ' % (pkg, installed[upgrade_ct])
 				rjust_spaces = 80 - (int(len(argline)))
-				print argline + status.rjust(rjust_spaces, '.')
+				print(argline + status.rjust(rjust_spaces, '.'))
 				cleanup()
 				upgrade_ct += 1
 				continue
 			elif result == -1:
-				print ':: local/%s %s seems newer than unsupported/%s %s' % (
-					pkg, installed[upgrade_ct], pkg, aurpkgver)
+				print(':: local/%s %s seems newer than unsupported/%s %s' % (
+					pkg, installed[upgrade_ct], pkg, aurpkgver))
 				cleanup()
 				upgrade_ct += 1
 				continue
@@ -913,15 +913,15 @@ def main():
 					pkgbuild_root = OFFICIAL_PATH
 					try:
 						results = afind.find_dir(pkgbuild_root, pkg)
-					except Exception, e:
-						print >>sys.stderr.write(str(e))
+					except Exception as e:
+						print(str(e), file=sys.stderr)
 				# End section.
 
 				if UPGRADE:
 					upgrade_ct += 1
 
 				if results == None:
-					print >>sys.stderr.write('%s not found under %s' % (pkg, pkgbuild_root))
+					print('%s not found under %s' % (pkg, pkgbuild_root), file=sys.stderr)
 					continue
 
 			# Select one PKGBUILD first. Make this interactive.
@@ -939,7 +939,7 @@ def main():
 				#try:
 				#	_pkgname = autils.echo_bash_vars(j, '${pkgname}')
 				#except Exception, e:
-				#	print >>sys.stderr.write('PKGBUILD syntax error: ' + str(e))
+				#	print('PKGBUILD syntax error: ' + str(e), sys.stderr)
 				#	cleanup()
 				#	upgrade_ct += 1
 				#	continue
@@ -949,7 +949,7 @@ def main():
 
 			copytree(results, pkg_work_dir)
 			os.chown(pkg_work_dir, builduser_uid, builduser_uid)
-			os.chmod(pkg_work_dir, 0775)
+			os.chmod(pkg_work_dir, 0o775)
 
 		else:
 			try:
@@ -959,15 +959,15 @@ def main():
 					extract(aur_tarfile)
 				else:
 					continue
-			except Exception, e:
-				print >>sys.stderr.write(str(e))
+			except Exception as e:
+				print(str(e), file=sys.stderr)
 				upgrade_ct += 1
 				continue
 
 		try:
 			work_dir = autils.get_pkgbuild_path(pkg_work_dir)
-		except Exception, e:
-			print >>sys.stderr.write(str(e))
+		except Exception as e:
+			print(str(e), file=sys.stderr)
 			return 1
 
 		os.chdir(work_dir)
@@ -998,19 +998,19 @@ def main():
 		# get dependencies
 		try:
 			mdep_cans, dep_cans = autils.get_depends(work_dir + '/PKGBUILD', 'makedepends', 'depends')
-		except Exception, e:
-			print >>sys.stderr.write(str(e))
+		except Exception as e:
+			print(str(e), file=sys.stderr)
 			return 1
 
 		mdeps = []
 		deps = []
-		print color('==> ', 'blue') + color('Checking Buildtime Dependencies... \n', 'black')
+		print(color('==> ', 'blue') + color('Checking Buildtime Dependencies... \n', 'black'))
 		if mdep_cans != ['']:
 			for mdep_can in mdep_cans:
 				try:
 					mdeps = filter_deps(mdep_can, fd_ct=1, type='[M]')
-				except Exception, e:
-					print >>sys.stderr.write(str(e))
+				except Exception as e:
+					print(str(e), file=sys.stderr)
 					return 1
 
 			# reset globals for deps
@@ -1019,14 +1019,14 @@ def main():
 			db_pkgs = []
 			db_paths = []
 
-		print color('==> ','blue') + color('Checking Runtime Dependencies... \n', 'black')
+		print(color('==> ','blue') + color('Checking Runtime Dependencies... \n', 'black'))
 
 		if dep_cans != ['']:
 			for dep_can in dep_cans:
 				try:
 					deps = filter_deps(dep_can, fd_ct=1, type='[D]')
-				except Exception, e:
-					print >>sys.stderr.write(str(e))
+				except Exception as e:
+					print(str(e), file=sys.stderr)
 					return 1
 
 		# reset again for next loop of args
@@ -1041,39 +1041,39 @@ def main():
 		for deps_type in mdeps, deps:
 			zct += 1
 			if deps_type != []:
-				print zdict[zct] + ' Targets: ',
-				for v in deps_type: print v,
+				print(zdict[zct] + ' Targets: ', end=' ')
+				for v in deps_type: print(v, end=' ')
 				if not NOCONFIRM:
-					dep_choice = raw_input('\nProceed?  [Y/n] ').lower()
+					dep_choice = input('\nProceed?  [Y/n] ').lower()
 				else:
-					print '\n'
+					print('\n')
 					dep_choice = 'y'
 				if dep_choice == 'y' or dep_choice == 'yes' or dep_choice == '':
 					if BUILDDEPS:
 						try:
 							builddeps(deps_type)
-						except Exception, e:
-							print >>sys.stderr.write(str(e))
+						except Exception as e:
+							print(str(e), file=sys.stderr)
 							return 1
 					elif SYNCDEPS:
 						try:
 							apacman.syncdeps(deps_type)
-						except Exception, e:
-							print >>sys.stderr.write(str(e))
+						except Exception as e:
+							print(str(e), file=sys.stderr)
 							return 1
 					if RM_MDEPS:
 						if 'make' in zdict[zct].lower():
 							rm_packages.extend(deps_type)
 				else:
-					print >> sys.stderr.write('Unresolved dependencies. Exiting.')
+					print('Unresolved dependencies. Exiting.', file=sys.stderr)
 					return 1
 
 		pkgname = makepkgf(pkg)
 		if not NOINSTALL:
 			try:
 				install(pkgname)
-			except Exception, e:
-				print >>sys.stderr.write(str(e))
+			except Exception as e:
+				print(str(e), file=sys.stderr)
 				return 1
 
 		upgrade_ct += 1
@@ -1081,13 +1081,13 @@ def main():
 
 	# Check for make deps that need to be removed.
 	if RM_MDEPS and len(rm_packages) > 0:
-		print '\nRemove Targets: ',
-		for rp in rm_packages: print rp,
+		print('\nRemove Targets: ', end=' ')
+		for rp in rm_packages: print(rp, end=' ')
 		if not NOCONFIRM:
-			choice = raw_input('\nProceed?  [Y/n] ').lower()
-			print ''
+			choice = input('\nProceed?  [Y/n] ').lower()
+			print('')
 		else:
-			print '\n'
+			print('\n')
 			choice = 'y'
 		if choice == 'y' or choice == 'yes' or choice == '':
 			p_cmd = ['pacman', '-R', '--noconfirm']
@@ -1100,13 +1100,13 @@ if __name__ == '__main__':
 	try:
 		val = main()
 		sys.exit(val)
-	except SystemExit, e:
+	except SystemExit as e:
 		if str(e) != '3':
 			cleanup()
 		sys.exit(e)
 	# print pacman specific errors, users will understand these.
-	except (apacman.DatabaseError, apacman.ConfigError), e:
-		print >>sys.stderr.write(str(e))
+	except (apacman.DatabaseError, apacman.ConfigError) as e:
+		print(str(e), file=sys.stderr)
 		cleanup()
 		sys.exit(1)
 	# raise everything else not accounted for. These are problems.

@@ -82,11 +82,11 @@ class db_tools:
 		comp = None
 		version = None
 
-        	for comparator in self.comparators:
-                	stripped = stripped.split(comparator)
-	                if len(stripped) > 1:
+		for comparator in self.comparators:
+			stripped = stripped.split(comparator)
+			if len(stripped) > 1:
 				comp = comparator
-        	                return stripped[0], comp, stripped[1]
+				return stripped[0], comp, stripped[1]
 			else:
 				stripped = stripped[0]
 		return stripped, comp, version
@@ -304,5 +304,5 @@ class operations(db_tools):
 
 if __name__ == '__main__':
 	import sys
-	print operations().pacmanT(sys.argv[1])
+	print(operations().pacmanT(sys.argv[1]))
 	sys.exit(0)

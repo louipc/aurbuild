@@ -21,7 +21,7 @@
 import re
 import os
 import sys
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 """
 The format of the 'site' argument must be protocol://domain
@@ -38,15 +38,15 @@ def fix_path(str):
 	return str
 
 def raw_pkg_query(keyword, site):
-	keyword = urllib.quote(keyword)
+	keyword = urllib.parse.quote(keyword)
 	search_url = "%s/rpc.php?type=search&arg=%s" % (site, keyword)
-	f = urllib.urlopen(search_url)
+	f = urllib.request.urlopen(search_url)
 	lines = f.readlines()
 	return lines
 
 def pkg_info(pkg, site):
-	search_url = "%s/rpc.php?type=info&arg=%s" % (site, urllib.quote(pkg))
-	f = urllib.urlopen(search_url)
+	search_url = "%s/rpc.php?type=info&arg=%s" % (site, urllib.parse.quote(pkg))
+	f = urllib.request.urlopen(search_url)
 	lines = f.readlines()
 
 	try:
@@ -59,9 +59,8 @@ def pkg_main_url(pkg, site):
 
 	try:
 		raw_text = raw_pkg_query(pkg, site)
-	except Exception, e:
-		print >>sys.stderr.write(
-			"Could not retrieve needed data from %s" % site)
+	except Exception as e:
+		print("Could not retrieve needed data from %s" % site, file=sys.stderr)
 		raise
 
 	# Match the portion of the search for a specific package.
@@ -90,12 +89,12 @@ def parse(f):
 	"""
 
 	# Implode
-	data = ''
+	data = b''
 	for line in f:
 		data += line
 
 	# Clean up paths
-	data = re.sub('\\\/', '/', data)
+	data = re.sub('\\\/', '/', data.decode())
 
 	results = data.split('"type":"')[1]
 	results = results.split('","results":')
@@ -104,7 +103,7 @@ def parse(f):
 
 	if type == "error":
 		results = results.split('"')[1]
-		print results
+		print(results)
 		return
 
 	# We could probably evaluate the output as python here,
@@ -155,5 +154,5 @@ def aursearch(keyword, site):
 
 if __name__ == '__main__':
 	import sys
-	print aursearch(sys.argv[1], 'http://aur.archlinux.org/')
+	print(aursearch(sys.argv[1], 'http://aur.archlinux.org/'))
 	sys.exit(0)

@@ -40,7 +40,7 @@ def find_it(dir, name, type):
 
 	# Test for dir's existence.
 	if not os.access(dir, os.F_OK | os.R_OK):
-		print >> sys.stderr.write('Error: %s not found or read permissions denied.' % dir)
+		print('Error: %s not found or read permissions denied.' % dir, file=sys.stderr.write)
 		return None
 
 	output, error = Popen(
