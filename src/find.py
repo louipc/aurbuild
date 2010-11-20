@@ -53,7 +53,7 @@ def find_it(dir, name, type):
 	if error:
 		raise Exception(str(error))
 
-	result = output.splitlines()
+	result = output.decode().splitlines()
 
 	if result == []:
 		return None

@@ -386,7 +386,7 @@ def filter_deps(pkg, fd_ct, type):
 	pre_space  = 3
 	# spaces must be greater than pre_space
 	spaces = 3
-	v = fd_ct / spaces
+	v = fd_ct // spaces
 	indents = ' ' * pre_space + ('|' + ' ' * spaces) * v
 	sys.stdout.write(color(indents + '- ', 'blue') + \
 		color(pkg + ': ', 'black'))
@@ -614,16 +614,17 @@ def menu(dir_list, package):
 	messages = ''
 
 	if not editor:
-		try:
-			get_editor()
-		except Exception as e:
-			messages += str(e) + "\n"
+		messages = get_editor()
+		if messages:
+			messages = messages + "\n"
+		else:
+			messages = ''
 
 	editor_cmd = editor
 	columns = 80
 	sep_num = 51
 	seperator = '-' * sep_num
-	space_num = (columns - sep_num ) / 2
+	space_num = (columns - sep_num ) // 2
 	spaces = ' ' * space_num
 
 	for each in dir_list:
@@ -645,7 +646,7 @@ def menu(dir_list, package):
 	def title(display, _color):
 		len_disp = int(len(display))
 		if len_disp > sep_num: centerspaces = ''
-		else: centerspaces = ' ' * ((sep_num - len_disp) / 2)
+		else: centerspaces = ' ' * ((sep_num - len_disp) // 2)
 		return spaces + centerspaces + color(display, _color)
 
 	getout = False
@@ -775,16 +776,18 @@ def get_editor():
 
 	# Get editor with separated args.
 	editor = editor.split(' ')
+	ueditor = editor[0]
 
-	input = editor[0]
-
-	if not autils.appcheck(input):
+	if not autils.appcheck(ueditor):
 		# Use less to view files if no valid editor is found.
 		editor = [default_editor]
 
-		raise Exception('%s not found on system.\n'
-				'Using %s as an editor.' %
-				(input, default_editor))
+		if ueditor:
+			retstr = '%s not found on system.\n' % ueditor
+		else:
+			retstr = ''
+
+		return retstr + 'Using %s as an editor.' % default_editor
 def main():
 	"""
 	Do all interactive stuff.
@@ -955,6 +958,7 @@ def main():
 			try:
 				# Try to get a tarball from AUR.
 				aur_tarfile = get_tarball(pkg)
+
 				if aur_tarfile:
 					extract(aur_tarfile)
 				else:

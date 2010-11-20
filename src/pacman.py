@@ -48,7 +48,7 @@ class db_tools:
 
 	def get_query(self, query):
 		command = "pacman"
-		output = Popen([command,query], stdout=PIPE).communicate()[0]
+		output = Popen([command,query], stdout=PIPE).communicate()[0].decode()
 
 		names = []
 		versions = []
@@ -276,7 +276,7 @@ class operations(db_tools):
 
 		pkgname, comp, req_version = db_tools.strip_ver_cmps(dependency)
 		p = Popen(['pacman', '-Q', pkgname], stdout=PIPE, stderr=PIPE)
-		pkginfo = p.stdout.read().split()
+		pkginfo = p.stdout.read().decode().split()
 
 		if not pkginfo: return 127
 		inst_version = pkginfo[1]

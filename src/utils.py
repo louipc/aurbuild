@@ -150,12 +150,12 @@ def get_depends(pkgbuild, makedeps='makedepends',
 		bash_array(optdeps))]
 
 	p = Popen(commands, stdout=PIPE, stderr=PIPE)
-	out = p.stdout.read()
+	out = p.stdout.read().decode()
 	err = p.stderr.read()
 	p.stdout.close()
 	p.stderr.close()
 
-	if err != '':
+	if err != b'':
 		raise Exception('PKGBUILD error:\n\t%s' % err)
 
 	out = out.splitlines()
