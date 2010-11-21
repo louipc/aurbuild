@@ -108,7 +108,7 @@ def echo_bash_vars(path, value):
 	else:
 		array = False
 
-	p = Popen(['/bin/bash', '-c', 'source %s; echo %s' % (path, value)],
+	p = Popen(['/bin/bash', '-c', 'source %s > /dev/null; echo %s' % (path, value)],
 			stdout=PIPE, stderr=PIPE)
 	out = p.stdout.read()
 	out = out.strip()
@@ -143,7 +143,7 @@ def handler(signo, frame):
 def get_depends(pkgbuild, makedeps='makedepends',
 		deps='depends', optdeps='optdepends'):
 
-	commands = ['/bin/bash', '-c', 'source %s; echo -e "%s\n%s\n%s"' % (
+	commands = ['/bin/bash', '-c', 'source %s > /dev/null; echo -e "%s\n%s\n%s"' % (
 		pkgbuild,
 		bash_array(makedeps),
 		bash_array(deps),
