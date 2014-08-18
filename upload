@@ -1,5 +1,0 @@
-#!/bin/bash
-
-scp $@ shell.berlios.de:/home/groups/aurbuild/htdocs
-
-exit

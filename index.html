@@ -28,12 +28,13 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 
 		a:hover { color: #005;}
 
-		.codebox {
+		.codebox, .alert {
 			background-color: #F4F4F4;
 			border: 1px solid #C5C5C5;
 			padding: 10px;
 			display: block;
 		}
+		.alert {color: red;}
 
 		hr {
 			color: #000;
@@ -45,11 +46,20 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 </head>
 
 <body>
+	<h1 class="alert">NOTICE</h1>
+	<h2 class="alert">
+THIS SOFTWARE IS NOW ABANDONED. IF YOU WOULD LIKE TO CONTINUE
+DEVELOPMENT OR APPROPRIATE THE NAME PLEASE SEND AN EMAIL TO:
+louipc dot ist at gmail, SUBJECT: AURBUILD
+	</h2>
+
+	<hr />
+
 	<h1>aurbuild</h1>
 
 	<ul>
 		<li>A tool to build and install packages from the
-		<a href="http://aur.archlinux.org">Arch Linux
+		<a href="https://aur.archlinux.org">Arch Linux
 		User Repository.</a></li>
 
 		<li>Helpful for building official packages via ABS.</li>
@@ -62,13 +72,13 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 
 	<h3>Try it out!</h3>
 
-	<p>Latest version: 1.8.10 (06 June 2010)
-	<a href="http://git.berlios.de/cgi-bin/cgit.cgi/
-		aurbuild/plain/CHANGELOG?h=stable">
+	<p>Latest version: <!-- 1.8.10 (06 June 2010) -->
+	<a href="https://raw.githubusercontent.com/louipc/aurbuild/master/CHANGELOG">
 		CHANGELOG
 	</a></p>
 
 	<p>
+<!--
 	<a href="http://download.berlios.de/aurbuild/aurbuild-1.8.10.tar.gz">
 	Source Tarball</a>
 	- MD5SUM a9681b8899b32bce1d7e8d9f5700f06a
@@ -81,15 +91,16 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 	<a href="http://developer.berlios.de/projects/aurbuild/">
 	Project Summary</a>
 	-
-	<a href="http://aur.archlinux.org/packages.php?ID=1775">
+-->
+	<a href="https://aur.archlinux.org/packages/aurbuild">
 	AUR Page</a>
 	-
-	<a href="http://git.berlios.de/cgi-bin/cgit.cgi/aurbuild">
+	<a href="https://github.com/louipc/aurbuild">
 	Browse GIT Repo</a>
 	</p>
 
 	<p>Please vote for aurbuild on the AUR Page.</p>
-
+<!--
 	<hr />
 	<h2 id="installing">Installing aurbuild</h2>
 
@@ -99,6 +110,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 	ftp://ftp.berlios.de/pub/aurbuild/aurbuild-1.8.10-2-any.pkg.tar.gz
 	</code>
 	</p>
+-->
 
 	<hr />
 	<h2 id="sudo">sudo and aurbuild</h2>
@@ -130,9 +142,18 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 
 	<hr />
 	<h2 id="support">Bugs and Support</h2>
+<!--
 	<p>If you have a bug report or need help with aurbuild please
 	use one of these channels.</p>
+-->
+	<p><b>AUR Page</b>
+	<br />
+	Post a comment on
+	<a href="https://aur.archlinux.org/packages/aurbuild">
+		aurbuild's AUR page</a>.
+	</p>
 
+	<!--
 	<p><b>Bug Tracker</b>
 	<br />
 	Comment on or submit a bug on the aurbuild bug tracker.
@@ -140,22 +161,13 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 	<a href="http://developer.berlios.de/bugs/?group_id=7176">
 		http://developer.berlios.de/bugs/?group_id=7176</a>
 	</p>
-	<p><b>AUR Page</b>
-	<br />
-	Post a comment on
-	<a href="http://aur.archlinux.org/packages.php?ID=1775">
-		aurbuild's AUR page</a>.
-	</p>
 
 	<p><b>email</b>
 	<br />
-	Loui Chang
-	&lt;louipc.ist@NOSPAMgmail.com&gt;
 	<br />Send mail with your bugs, questions, or patches.
 	<br />Put 'aurbuild' in the Subject.
 	</p>
 
-	<!--
 	<p><b>IRC @ Freenode</b>
 	<br />/join #aurbuild and chat away!
 	</p>
@@ -171,13 +183,13 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 
 	<p>
 	<code class="codebox">
-		git clone git://git.berlios.de/aurbuild
+		git clone https://github.com/louipc/aurbuild.git
 	</code>
 	</p>
 
 	<p>Browse the code at
-	<a href="http://git.berlios.de/cgi-bin/cgit.cgi/aurbuild">
-		http://git.berlios.de/cgi-bin/cgit.cgi/aurbuild
+	<a href="https://github.com/louipc/aurbuild">
+		https://github.com/louipc/aurbuild
 	</a>
 	</p>
 
@@ -203,10 +215,6 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 	<hr />
 
 	<div>
-	<a href="http://developer.berlios.de">
-		<img src="http://developer.berlios.de/bslogo.php?group_id=7176"
-		alt="BerliOS" />
-	</a>
 
 	<a href="http://validator.w3.org/check?uri=referer">
 		<img src="http://www.w3.org/Icons/valid-xhtml10"
