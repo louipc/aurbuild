@@ -24,7 +24,7 @@ import re
 import sys
 import pwd
 
-from subprocess import Popen, PIPE
+from subprocess import check_call, Popen, PIPE
 from shutil import copytree
 
 import aurbuild
@@ -34,6 +34,11 @@ afind = aurbuild.find
 
 uid = os.getuid()
 gid = os.getgid()
+
+# make usual .../sbin components are in $PATH
+for comp in ('/usr/local/sbin', '/usr/sbin', '/sbin'):
+	if comp not in os.environ['PATH'].split(':'):
+		os.environ['PATH'] = comp + ':' + os.environ['PATH']
 
 # Changes ownership of files and directories recursively.
 def own_dir(dir, user, group):
@@ -206,34 +211,27 @@ def prepare_build_user():
 		builduser_uid = pwd.getpwnam('aurbuild')[2]
 		builduser_gid = pwd.getpwnam('aurbuild')[3]
 		return builduser_uid, builduser_gid
-	except:
-		# setup an account
-		print 'creating designated build user... ',
-		code = Popen(['useradd',
-			'-s', '/bin/false',
-			'-d', '/var/tmp/aurbuild',
-			'-u', '360',
-			'-c', 'aurbuild', 'aurbuild']).wait()
-		if code != 0:
-			raise Exception('Error: could not create designated '
-				'build user. '
-				'Reports exit status %s' % str(code))
-		else:
-			print 'done.'
+	except KeyError:
+		pass
 
-		# lock password
-		print 'locking password... ',
-		code = Popen(['passwd', '-l', '-q', 'aurbuild']).wait()
-		if code != 0:
-			raise Exception('Error: could not lock password. '
-				'Reports exit status of %s' % str(code))
-		else:
-			print 'done.'
+	# setup an account
+	print 'creating designated build user... ',
+	check_call(['useradd',
+		'-s', '/bin/false',
+		'-d', '/var/tmp/aurbuild',
+		'-u', '360',
+		'-c', 'aurbuild', 'aurbuild'])
+	print 'done.'
 
-		# prepare_work_dirs() will handle the proper build directories
+	# lock password
+	print 'locking password... ',
+	check_call(['passwd', '-l', '-q', 'aurbuild'])
+	print 'done.'
 
-		# try again
-		return prepare_build_user()
+	# prepare_work_dirs() will handle the proper build directories
+
+	# try again
+	return prepare_build_user()
 
 def get_pkgbuild_path(parent_dir):
 	results = afind.find_file(parent_dir, 'PKGBUILD')
