@@ -1,6 +1,10 @@
 README
 
-aurbuild's webpage is at http://aurbuild.berlios.de
+aurbuild's webpage is at http://louipc.github.io/aurbuild
+
+NOTE: THIS SOFTWARE IS NOW ABANDONED. IF YOU WOULD LIKE TO CONTINUE
+DEVELOPMENT OR APPROPRIATE THE NAME PLEASE SEND AN EMAIL TO:
+louipc dot ist at gmail
 
 aurbuild is a utility to build and install packages from the Arch Linux
 User Community Repositories through the use of makepkg and pacman.
